@@ -1,3 +1,5 @@
+![build](https://github.com/github/docs/actions/workflows/python-package.yml/badge.svg)
+
 # pytorch_hyperbolic
 Implementation of hyperbolic NNs and GNNs 
 
