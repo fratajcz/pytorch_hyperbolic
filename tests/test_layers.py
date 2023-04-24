@@ -68,8 +68,6 @@ class HypActTest(unittest.TestCase):
 
         # check if implicitely calling forward works too
         x_direct = hact(hact.manifold.expmap0(x_input, c=1.5))
-        print(x_direct)
-        print(x)
         self.assertTrue(torch.allclose(x_direct, x))
 
     def test_forward_hyperboloid(self):
@@ -142,8 +140,6 @@ class HGCNConvTest(unittest.TestCase):
         hgcnlocal.lin = hgcn0.lin
         x0 = hgcn0.forward(hgcn0.manifold.expmap0(x_input, hgcn0.c),  edges.T.long())
         xlocal = hgcnlocal.forward(hgcnlocal.manifold.expmap0(x_input, hgcnlocal.c),  edges.T.long())
-        print(x0)
-        print(xlocal)
         self.assertTrue(not torch.allclose(x0, xlocal))
 
     def test_use_att_poincare(self):
