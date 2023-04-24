@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 from torch.nn.modules.module import Module
-import speos.layers.hyperbolic.manifolds as manifolds
+import torch_hyperbolic.manifolds as manifolds
 
 
 class HyperbolicDecoder(Module):
