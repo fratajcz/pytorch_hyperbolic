@@ -28,7 +28,7 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        pip install flake8 torch-hyperbolic
+        pip install .
         pip install torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.0.0+cpu.html
     - name: Test with unittest
       run: |
