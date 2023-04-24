@@ -54,10 +54,40 @@ class HypLinearTest(unittest.TestCase):
         x_direct = hlin(x_input)
         self.assertTrue(torch.allclose(x_direct, x))
 
+
+class InitLayerTest(unittest.TestCase):
+
+    def test_init(self):
+        _ = HyperbolicEncoder(curvature=1.5)
+        _ = HyperbolicDecoder(curvature=1.5)
+
+    def test_encode_and_decode_poincare(self):
+        values = torch.rand(5, 10)
+        encoder = HyperbolicEncoder(curvature=1.5)
+        decoder = HyperbolicDecoder(curvature=1.5)
+
+        hyp = encoder(values)
+        euclid = decoder(hyp)
+
+        self.assertTrue(torch.allclose(values, euclid))
+
+    def test_encode_and_decode_lorentz(self):
+
+        values = torch.rand(5, 10)
+        encoder = HyperbolicEncoder(curvature=1.5, manifold="Hyperboloid")
+        decoder = HyperbolicDecoder(curvature=1.5, manifold="Hyperboloid")
+
+        hyp = encoder(values)
+        print(hyp.shape)
+        euclid = decoder(hyp)
+
+        self.assertTrue(torch.allclose(values, euclid))
+
+
 class HypActTest(unittest.TestCase):
 
     def test_init(self):
-        hact = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=1.5)
+        _ = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=1.5)
 
     def test_forward(self):
         x_input = torch.rand((5, 10))
