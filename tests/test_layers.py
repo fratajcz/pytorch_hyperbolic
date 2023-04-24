@@ -3,6 +3,7 @@ import unittest
 import torch
 
 from torch_hyperbolic.nn import HypAct, HypLinear, HyperbolicEncoder, HyperbolicDecoder, HGATConv, HGCNConv
+from torch_hyperbolic import manifolds
 
 class HypLinearTest(unittest.TestCase):
 
@@ -78,7 +79,6 @@ class InitLayerTest(unittest.TestCase):
         decoder = HyperbolicDecoder(curvature=1.5, manifold="Hyperboloid")
 
         hyp = encoder(values)
-        print(hyp.shape)
         euclid = decoder(hyp)
 
         self.assertTrue(torch.allclose(values, euclid))
@@ -90,25 +90,28 @@ class HypActTest(unittest.TestCase):
         _ = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=1.5)
 
     def test_forward(self):
+        ball = manifolds.PoincareBall()
+
         x_input = torch.rand((5, 10))
 
         hact = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=0.5)
-        x = hact.forward(hact.manifold.expmap0(x_input, c=1.5))
+        x = hact.forward(ball.expmap0(x_input, c=1.5))
         self.assertTrue(not torch.allclose(x, x_input))
 
         # check if implicitely calling forward works too
-        x_direct = hact(hact.manifold.expmap0(x_input, c=1.5))
+        x_direct = hact(ball.expmap0(x_input, c=1.5))
         self.assertTrue(torch.allclose(x_direct, x))
 
     def test_forward_hyperboloid(self):
+        hyperboloid = manifolds.Hyperboloid()
         x_input = torch.rand((5, 10))
 
-        hact = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=1.5, manifold="Hyperboloid")
-        x = hact.forward(x_input)
+        hact = HypAct(act=torch.nn.ELU(), c_in=1.5, c_out=0.5, manifold="Hyperboloid")
+        x = hact.forward(hyperboloid.expmap0(hyperboloid.proj_tan0(x_input, c=1.5), c=1.5))
         self.assertTrue(not torch.allclose(x, x_input))
 
         # check if implicitely calling forward works too
-        x_direct = hact(x_input)
+        x_direct = hact(hyperboloid.expmap0(hyperboloid.proj_tan0(x_input, c=1.5), c=1.5))
         self.assertTrue(torch.allclose(x_direct, x))
 
 class HGATConvTest(unittest.TestCase):

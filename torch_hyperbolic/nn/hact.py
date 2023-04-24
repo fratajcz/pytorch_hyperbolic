@@ -1,7 +1,7 @@
 """Hyperbolic layers."""
 import torch.nn as nn
 from torch.nn.modules.module import Module
-import torch_hyperbolic.manifolds as manifolds
+
 
 class HypAct(Module):
     """
@@ -10,15 +10,24 @@ class HypAct(Module):
 
     def __init__(self, act, c_in=None, c_out=None, manifold="PoincareBall"):
         super(HypAct, self).__init__()
-        self.manifold = getattr(manifolds, manifold)()
+        from torch_hyperbolic.nn import HyperbolicDecoder, HyperbolicEncoder
+        #self.manifold = getattr(manifolds, manifold)()
         self.act = act
-        self.c_in = c_in
-        self.c_out = c_out
+        #self.c_in = c_in
+        #self.c_out = c_out
+        self.decoder = HyperbolicDecoder(manifold=manifold, curvature=c_in) if c_in is not None else c_in
+        self.encoder = HyperbolicEncoder(manifold=manifold, curvature=c_out) if c_out is not None else c_in
 
     def forward(self, x):
-        x = self.act(self.manifold.logmap0(x, c=self.c_in))
-        x = self.manifold.proj_tan0(x, c=self.c_out)
-        return self.manifold.proj(self.manifold.expmap0(x, c=self.c_out), c=self.c_out)
+        if self.decoder is not None:
+            x = self.decoder(x)
+
+        x = self.act(x)
+
+        if self.encoder is not None:
+            x = self.encoder(x)
+
+        return x
 
     def extra_repr(self):
         return 'c_in={}, c_out={}'.format(
