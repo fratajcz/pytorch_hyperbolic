@@ -374,10 +374,7 @@ class Hyperboloid(Manifold):
         K = 1. / c
         sqrtK = K ** 0.5
         d = u.size(-1) - 1
-        if d > 0:
-            x = u.narrow(-1, 1, d).view(-1, d)
-        else:
-            x = u
+        x = u.narrow(-1, 1, d).view(-1, d)
         x_norm = torch.norm(x, p=2, dim=1, keepdim=True)
         x_norm = torch.clamp(x_norm, min=self.min_norm)
         theta = x_norm / sqrtK
@@ -390,10 +387,7 @@ class Hyperboloid(Manifold):
         K = 1. / c
         sqrtK = K ** 0.5
         d = x.size(-1) - 1
-        if d > 0:
-            y = x.narrow(-1, 1, d).view(-1, d)
-        else:
-            y = x
+        y = x.narrow(-1, 1, d).view(-1, d)
         y_norm = torch.norm(y, p=2, dim=1, keepdim=True)
         y_norm = torch.clamp(y_norm, min=self.min_norm)
         res = torch.zeros_like(x)

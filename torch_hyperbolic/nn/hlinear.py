@@ -16,12 +16,13 @@ class HypLinear(nn.Module):
         super(HypLinear, self).__init__()
         self.manifold = getattr(manifolds, manifold)()
         self.in_channels = in_channels
-        self.out_channels = out_channels
         self.c = c
+        self.real_out_channels = out_channels
+        self.out_channels = out_channels if out_channels > 1 else 2
         self.dropout = dropout
         self.use_bias = use_bias
-        self.bias = nn.Parameter(torch.Tensor(out_channels))
-        self.weight = nn.Parameter(torch.Tensor(out_channels, in_channels))
+        self.bias = nn.Parameter(torch.Tensor(self.out_channels))
+        self.weight = nn.Parameter(torch.Tensor(self.out_channels, in_channels))
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -39,6 +40,8 @@ class HypLinear(nn.Module):
             hyp_bias = self.manifold.proj(hyp_bias, self.c)
             res = self.manifold.mobius_add(res, hyp_bias, c=self.c)
             res = self.manifold.proj(res, self.c)
+        if self.real_out_channels == 1 and isinstance(self.manifold, manifolds.Hyperboloid):
+            res = res[:, 1:]
         return res
 
     def extra_repr(self):
