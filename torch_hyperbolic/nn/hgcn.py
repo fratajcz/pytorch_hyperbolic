@@ -34,7 +34,7 @@ class HGCNConv(MessagePassing):
         self.bias = nn.Parameter(torch.Tensor(out_channels))
         self.reset_parameters()
         self.normalize = normalize
-        self.local_agg = True
+        self.local_agg = local_agg
         self.dropout = dropout
 
     def forward(self, x, edge_index):
