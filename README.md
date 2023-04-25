@@ -1,5 +1,4 @@
 ![build](https://github.com/fratajcz/pytorch_hyperbolic/actions/workflows/build.yml/badge.svg)
-![pypi](https://github.com/fratajcz/pytorch_hyperbolic/actions/workflows/pypi.yml/badge.svg)
 
 # pytorch_hyperbolic
 Implementation of hyperbolic NNs and GNNs 
