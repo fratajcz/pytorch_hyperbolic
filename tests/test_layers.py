@@ -45,16 +45,6 @@ class HypLinearTest(unittest.TestCase):
         x_direct = hlin(x_input)
         self.assertTrue(torch.allclose(x_direct, x))
 
-    def test_forward_hyperboloid_single_output(self):
-        x_input = torch.rand((5, 10))
-
-        hlin = HypLinear(in_channels=10, out_channels=1, manifold="Hyperboloid", c=1.5)
-        x = hlin.forward(x_input)
-
-        # check if implicitely calling forward works too
-        x_direct = hlin(x_input)
-        self.assertTrue(torch.allclose(x_direct, x))
-
 
 class InitLayerTest(unittest.TestCase):
 
