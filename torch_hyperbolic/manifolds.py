@@ -180,7 +180,7 @@ class PoincareBall(Manifold):
         mx = x @ m.transpose(-1, -2)
         mx_norm = mx.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
         res_c = tanh(mx_norm / x_norm * artanh(sqrt_c * x_norm)) * mx / (mx_norm * sqrt_c)
-        cond = (mx == 0).prod(-1, keepdim=True, dtype=torch.uint8)
+        cond = (mx == 0).prod(-1, keepdim=True, dtype=torch.bool)
         res_0 = torch.zeros(1, dtype=res_c.dtype, device=res_c.device)
         res = torch.where(cond, res_0, res_c)
         return res

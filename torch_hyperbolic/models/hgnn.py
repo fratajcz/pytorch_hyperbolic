@@ -5,7 +5,7 @@ import torch
 import torch_hyperbolic.nn as hypnn
 
 class HGNN(nn.Module):
-    def __init__(self, in_channels, out_channels, hidden_dim, manifold="PoincareBall", dropout=0, act=torch.nn.ELU(), trainable_curvature=True, init_curvature=1, *args, **kwargs):
+    def __init__(self, in_channels, out_channels, hidden_dim, manifold="PoincareBall", dropout=0, act=torch.nn.ELU(), trainable_curvature=True, init_curvature=1, gcn_kwargs={}):
         super(HGNN, self).__init__()
         n_layers = 4  # one linear input layer, 2 GNN layers, 1 linear output layer
 
@@ -23,11 +23,11 @@ class HGNN(nn.Module):
         self.act0 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[0], c_out=self.curvatures[1])
         self.dropout0 = nn.Dropout(p=dropout)
 
-        self.gnn1 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[1], dropout=dropout, *args, *kwargs)
+        self.gnn1 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[1], dropout=dropout, **gcn_kwargs)
         self.act1 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[1], c_out=self.curvatures[2])
         self.dropout1 = nn.Dropout(p=dropout)
 
-        self.gnn2 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[2], dropout=dropout, *args, *kwargs)
+        self.gnn2 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[2], dropout=dropout, **gcn_kwargs)
         self.act2 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[2], c_out=self.curvatures[3])
         self.dropout2 = nn.Dropout(p=dropout)
 
