@@ -3,8 +3,7 @@ import torch
 """Base manifold."""
 
 from torch.nn import Parameter
-from .utils import artanh, tanh, arcosh, cosh, sinh
-
+from .utils import tanh, arcosh, cosh, sinh, artanh
 
 class Manifold(object):
     """
@@ -150,18 +149,22 @@ class PoincareBall(Manifold):
         return 2 / sqrt_c / lam * artanh(sqrt_c * sub_norm) * sub / sub_norm
 
     def expmap0(self, u, c):
-        sqrt_c = c ** 0.5
-        u_norm = torch.clamp_min(u.norm(dim=-1, p=2, keepdim=True), self.min_norm)
-        gamma_1 = tanh(sqrt_c * u_norm) * u / (sqrt_c * u_norm)
-        return gamma_1
+        #sqrt_c = c ** 0.5
+        #u_norm = torch.clamp_min(u.norm(dim=-1, p=2, keepdim=True), self.min_norm)
+        #gamma_1 = tan_k(u_norm, k) * (u / u_norm)
+        #left_side = torch.tanh(sqrt_c * u_norm)
+        #right_side = (u / (sqrt_c * u_norm))
+        #gamma_1 = left_side * right_side
+        zeros = torch.zeros_like(u)
+        #return gamma_1
+        return self.expmap(u, zeros, c)
 
     def expmap(self, u, p, c):
         sqrt_c = c ** 0.5
         u_norm = u.norm(dim=-1, p=2, keepdim=True).clamp_min(self.min_norm)
         second_term = (
-                tanh(sqrt_c / 2 * self._lambda_x(p, c) * u_norm)
-                * u
-                / (sqrt_c * u_norm)
+                torch.tanh(sqrt_c * ((self._lambda_x(p, c) * u_norm) / 2 ))
+                * (u / (sqrt_c * u_norm))
         )
         gamma_1 = self.mobius_add(p, second_term, c)
         return gamma_1

@@ -4,9 +4,9 @@ import torch.nn as nn
 import torch
 import torch_hyperbolic.nn as hypnn
 
-class HGNN(nn.Module):
-    def __init__(self, in_channels, out_channels, hidden_dim, manifold="PoincareBall", dropout=0, act=torch.nn.ELU(), trainable_curvature=True, init_curvature=1, gcn_kwargs={}):
-        super(HGNN, self).__init__()
+class HFiLM(nn.Module):
+    def __init__(self, in_channels, out_channels, hidden_dim, num_relations, manifold="PoincareBall", dropout=0, act=torch.nn.ELU(), trainable_curvature=True, init_curvature=1, gcn_kwargs={}):
+        super(HFiLM, self).__init__()
         n_layers = 4  # one linear input layer, 2 GNN layers, 1 linear output layer
 
         requires_grad = trainable_curvature
@@ -23,32 +23,37 @@ class HGNN(nn.Module):
         self.act0 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[0], c_out=self.curvatures[1])
         self.dropout0 = nn.Dropout(p=dropout)
 
-        self.gnn1 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[1], dropout=dropout, **gcn_kwargs)
+        self.gnn1 = hypnn.HFiLMConv(in_channels=hidden_dim, out_channels=hidden_dim, num_relations=num_relations, manifold=manifold, c=self.curvatures[1], dropout=dropout, **gcn_kwargs)
         self.act1 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[1], c_out=self.curvatures[2])
         self.dropout1 = nn.Dropout(p=dropout)
 
-        self.gnn2 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[2], dropout=dropout, *gcn_kwargs)
+        self.gnn2 = hypnn.HFiLMConv(in_channels=hidden_dim, out_channels=hidden_dim, num_relations=num_relations, manifold=manifold, c=self.curvatures[2], dropout=dropout, **gcn_kwargs)
         self.act2 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[2], c_out=self.curvatures[3])
         self.dropout2 = nn.Dropout(p=dropout)
 
         self.output_lin = hypnn.HypLinear(manifold=manifold, in_channels=hidden_dim, out_channels=out_channels, c=self.curvatures[3])
         self.decoder = hypnn.HyperbolicDecoder(manifold=manifold, curvature=self.curvatures[3])
 
-    def forward(self, x, adj):
+    def forward(self, x, adj, edge_type):
         # bring x into hyperbolic space
+
         x = self.encoder(x)
-
         # pass through input layers
+        flag = torch.any(torch.isnan(x))
         x = self.dropout0(self.act0(self.input_lin(x)))
-
+        flag = torch.any(torch.isnan(x))
         # pass through GNN
-        x = self.dropout1(self.act1(self.gnn1(x, adj)))
-        x = self.dropout2(self.act2(self.gnn2(x, adj)))
-
+        x = self.gnn1(x, adj, edge_type)
+        flag = torch.any(torch.isnan(x))
+        #x = self.dropout1(self.act1(x))
+        x = self.gnn2(x, adj, edge_type)
+        flag = torch.any(torch.isnan(x))
+        #x = self.dropout2(self.act2(self.gnn2(x, adj, edge_type)))
         # pass through classifier
-        x = self.output_lin(x)
 
+        x = self.output_lin(x)
+        flag = torch.any(torch.isnan(x))
         # bring back into euclidean space
         x = self.decoder(x)
-
+        flag = torch.any(torch.isnan(x))
         return x

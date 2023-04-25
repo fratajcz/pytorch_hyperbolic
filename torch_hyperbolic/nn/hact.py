@@ -9,10 +9,10 @@ class HypAct(Module):
     """
 
     def __init__(self, act, c_in=None, c_out=None, manifold="PoincareBall"):
+        """
+        
+        """
         super(HypAct, self).__init__()
-
-
-
         from torch_hyperbolic.nn import HyperbolicDecoder, HyperbolicEncoder
         self.decoder = HyperbolicDecoder(manifold=manifold, curvature=c_in) if c_in is not None else c_in
         self.act = act
@@ -28,6 +28,3 @@ class HypAct(Module):
             x = self.encoder(x)
 
         return x
-
-    def __call__(self, *args, **kwargs):
-        return self.forward(*args, **kwargs)

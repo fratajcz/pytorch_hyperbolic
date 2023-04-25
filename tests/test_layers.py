@@ -2,7 +2,7 @@
 import unittest
 import torch
 
-from torch_hyperbolic.nn import HypAct, HypLinear, HyperbolicEncoder, HyperbolicDecoder, HGATConv, HGCNConv
+from torch_hyperbolic.nn import HypAct, HypLinear, HyperbolicEncoder, HyperbolicDecoder, HGATConv, HGCNConv, HFiLMConv
 from torch_hyperbolic import manifolds
 
 class HypLinearTest(unittest.TestCase):
@@ -177,6 +177,40 @@ class HGCNConvTest(unittest.TestCase):
         xlocal = hgcnlocal.forward(hgcnlocal.manifold.expmap0(x_input, hgcnlocal.c),  edges.T.long())
         self.assertTrue(not torch.allclose(x0, xlocal))
 
+
+class HFiLMConvTest(unittest.TestCase):
+
+    def test_init(self):
+        layer = HFiLMConv(in_channels=10, out_channels=10, c=1.5)
+
+    def test_init_multiple_relations(self):
+        layer = HFiLMConv(in_channels=10, out_channels=10, c=1.5, num_relations=2)
+    
+    def test_forward_poincare(self):
+        edges = torch.LongTensor([[0, 1], [0, 2], [2, 3], [2, 4]])
+        edge_types = torch.LongTensor([0, 1, 0, 1])
+        x_input = torch.rand((5, 10))
+
+        layer = HFiLMConv(in_channels=10, out_channels=10, c=1.5, num_relations=2)
+        x = layer.forward(x_input, edges.T.long(), edge_types.long())
+        self.assertTrue(not torch.allclose(x, x_input))
+
+         # check if implicitely calling forward works too
+        x_direct = layer(x_input, edges.T.long(), edge_types.long())
+        self.assertTrue(torch.allclose(x_direct, x))
+
+    def test_forward_poincare_local_agg(self):
+        edges = torch.LongTensor([[0, 1], [0, 2], [2, 3], [2, 4]])
+        edge_types = torch.LongTensor([0, 1, 0, 1])
+        x_input = torch.rand((5, 10))
+
+        layer = HFiLMConv(in_channels=10, out_channels=10, c=1.5, num_relations=2, local_agg=True)
+        x = layer.forward(x_input, edges.T.long(), edge_types.long())
+        self.assertTrue(not torch.allclose(x, x_input))
+
+         # check if implicitely calling forward works too
+        x_direct = layer(x_input, edges.T.long(), edge_types.long())
+        self.assertTrue(torch.allclose(x_direct, x))
 
 if __name__ == '__main__':
     unittest.main()
