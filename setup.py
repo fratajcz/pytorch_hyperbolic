@@ -5,7 +5,7 @@ setup(
         version="0.0.1",
         author="Florin Ratajczak",
         description="Hyperbolic NNs and GNNs in torch",
-        packages=["torch_hyperbolic", "torch_hyperbolic.nn", "torch_hyperbolic.models"],
+        packages=find_packages(exclude=["tests"]),
         install_requires=["torch>=1.11", "torch-geometric>=2"]
 )
 
