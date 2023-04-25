@@ -12,10 +12,10 @@ class HypAct(Module):
         super(HypAct, self).__init__()
         from torch_hyperbolic.nn import HyperbolicDecoder, HyperbolicEncoder
         #self.manifold = getattr(manifolds, manifold)()
-        self.act = act
         #self.c_in = c_in
         #self.c_out = c_out
         self.decoder = HyperbolicDecoder(manifold=manifold, curvature=c_in) if c_in is not None else c_in
+        self.act = act
         self.encoder = HyperbolicEncoder(manifold=manifold, curvature=c_out) if c_out is not None else c_in
 
     def forward(self, x):
@@ -28,11 +28,6 @@ class HypAct(Module):
             x = self.encoder(x)
 
         return x
-
-    def extra_repr(self):
-        return 'c_in={}, c_out={}'.format(
-            self.c_in, self.c_out
-        )
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
