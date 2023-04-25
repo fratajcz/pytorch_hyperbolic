@@ -1,1 +1,4 @@
 furo
+torch
+torch-sparse
+torch-scatter
