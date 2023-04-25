@@ -65,8 +65,8 @@ exclude_patterns = []
 #html_logo = "mepro_headshot.png"
 html_theme = "furo"
 
-# These folders are copied to the documentation's HTML output
-html_static_path = ['_static']
+# These folders are copied to the documentation's HTML output#
+#html_static_path = ['_static']
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
