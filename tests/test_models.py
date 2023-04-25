@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from torch_hyperbolic.models import HGNN
+from torch_hyperbolic.models.hgnn import HGNN
 
 class HGNNTest(unittest.TestCase):
 
