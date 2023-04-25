@@ -6,6 +6,5 @@ setup(
         author="Florin Ratajczak",
         description="Hyperbolic NNs and GNNs in torch",
         packages=find_packages(exclude=["tests", "docs"]),
-        install_requires=["torch>=1.11", "torch-geometric>=2"],
-        extras_require={'docs':  ["torch-sparse", "torch-scatter"]}
+        install_requires=["torch>=1.11", "torch-geometric>=2"]
 )
