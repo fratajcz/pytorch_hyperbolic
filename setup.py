@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
         name="torch_hyperbolic",
-        version="0.0.2",
+        version="0.0.3",
         author="Florin Ratajczak",
         description="Hyperbolic NNs and GNNs in torch",
         packages=find_packages(exclude=["tests", "docs"]),
