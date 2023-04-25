@@ -12,7 +12,8 @@ python:
   # Install our python package before building the docs
   install:
     - requirements: docs/first_requirements.txt
-    - requirements: requirements.yml
     - method: pip
       path: .
+      extra_requirements:
+        - docs
     
