@@ -1,4 +1,5 @@
 furo
-torch
+torch --index-url https://download.pytorch.org/whl/cpu
+torch-geometric
 torch-sparse
 torch-scatter
