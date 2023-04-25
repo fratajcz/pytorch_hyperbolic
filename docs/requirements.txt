@@ -1,5 +1,5 @@
 furo
-torch --index-url https://download.pytorch.org/whl/cpu
+https://download.pytorch.org/whl/cpu/torch-2.0.0%2Bcpu-cp310-cp310-linux_x86_64.whl
 torch-geometric
 torch-sparse
 torch-scatter
