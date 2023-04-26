@@ -11,7 +11,7 @@ input_dim = dataset.num_node_features
 output_dim = dataset.num_classes
 hidden_dim = 12
 loss_function = torch.nn.BCEWithLogitsLoss(reduction="none")
-model = HFiLM(in_channels=input_dim, out_channels=output_dim, num_relations=2, hidden_dim=hidden_dim)
+model = HFiLM(in_channels=input_dim, out_channels=output_dim, num_relations=2, hidden_dim=hidden_dim, manifold="PoincareBall", gcn_kwargs={"c_per_relation": True}).double()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 y_onehot = torch.FloatTensor(dataset.y.shape[0], output_dim)
@@ -21,14 +21,16 @@ y_onehot.scatter_(1, dataset.y.unsqueeze(-1), 1)
 edge_index = torch.cat((dataset.edge_index, dataset.edge_index), dim=1)
 edge_type = torch.cat((torch.zeros_like(dataset.edge_index)[0, :], torch.ones_like(dataset.edge_index)[0, :]), dim=0)
 epochs = 100
+
 print("Model curvatures before training: {}".format([round(x.detach().item(), 3) for x in model.curvatures]))
+print("First HFiLM Layer curvatures before training: {}".format([round(x.detach().item(), 3) for x in model.gnn1.curvatures]))
+print("Second HFiLM Layer curvatures before training: {}".format([round(x.detach().item(), 3) for x in model.gnn2.curvatures]))
+
 for epoch in range(epochs):
     # train
     model.zero_grad()
-    out = model(dataset.x, edge_index, edge_type)
-    flag = torch.any(torch.isnan(out))
+    out = model(dataset.x.double(), edge_index, edge_type)
     loss = loss_function(out[dataset.train_mask].squeeze(), y_onehot[dataset.train_mask].squeeze()).squeeze()
-    flag = torch.any(torch.isnan(loss))
     loss = loss.mean()
     loss.backward()
     optimizer.step()
@@ -45,3 +47,5 @@ with torch.no_grad():
     test_loss = loss_function(out[dataset.test_mask].squeeze(), y_onehot[dataset.test_mask].squeeze()).squeeze().mean()
     print("Test Loss: {:.2f}".format(test_loss))
     print("Model curvatures after training: {}".format([round(x.detach().item(), 3) for x in model.curvatures]))
+    print("First HFiLM Layer curvatures after training: {}".format([round(x.detach().item(), 3) for x in model.gnn1.curvatures]))
+    print("Second HFiLM Layer curvatures after training: {}".format([round(x.detach().item(), 3) for x in model.gnn2.curvatures]))

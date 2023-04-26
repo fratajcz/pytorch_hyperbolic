@@ -9,7 +9,7 @@ dataset = Planetoid(root='/tmp/Cora', name='Cora')
 input_dim = dataset.num_node_features
 
 output_dim = dataset.num_classes
-hidden_dim = 8
+hidden_dim = 12
 loss_function = torch.nn.BCEWithLogitsLoss(reduction="none")
 model = HGNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim, manifold="PoincareBall")
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)

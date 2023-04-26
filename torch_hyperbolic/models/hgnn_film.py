@@ -24,11 +24,11 @@ class HFiLM(nn.Module):
         self.dropout0 = nn.Dropout(p=dropout)
 
         self.gnn1 = hypnn.HFiLMConv(in_channels=hidden_dim, out_channels=hidden_dim, num_relations=num_relations, manifold=manifold, c=self.curvatures[1], dropout=dropout, **gcn_kwargs)
-        self.act1 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[1], c_out=self.curvatures[2])
+        self.act1 = hypnn.HypAct(act=nn.Identity(), manifold=manifold, c_in=self.curvatures[1], c_out=self.curvatures[2])
         self.dropout1 = nn.Dropout(p=dropout)
 
         self.gnn2 = hypnn.HFiLMConv(in_channels=hidden_dim, out_channels=hidden_dim, num_relations=num_relations, manifold=manifold, c=self.curvatures[2], dropout=dropout, **gcn_kwargs)
-        self.act2 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[2], c_out=self.curvatures[3])
+        self.act2 = hypnn.HypAct(act=nn.Identity(), manifold=manifold, c_in=self.curvatures[2], c_out=self.curvatures[3])
         self.dropout2 = nn.Dropout(p=dropout)
 
         self.output_lin = hypnn.HypLinear(manifold=manifold, in_channels=hidden_dim, out_channels=out_channels, c=self.curvatures[3])
@@ -38,22 +38,21 @@ class HFiLM(nn.Module):
         # bring x into hyperbolic space
 
         x = self.encoder(x)
+
         # pass through input layers
-        flag = torch.any(torch.isnan(x))
         x = self.dropout0(self.act0(self.input_lin(x)))
-        flag = torch.any(torch.isnan(x))
+        
         # pass through GNN
         x = self.gnn1(x, adj, edge_type)
-        flag = torch.any(torch.isnan(x))
-        #x = self.dropout1(self.act1(x))
-        x = self.gnn2(x, adj, edge_type)
-        flag = torch.any(torch.isnan(x))
-        #x = self.dropout2(self.act2(self.gnn2(x, adj, edge_type)))
-        # pass through classifier
+        x = self.dropout1(self.act1(x))
 
+        x = self.gnn2(x, adj, edge_type)
+        x = self.dropout2(self.act2(x))
+        
+        # pass through classifier
         x = self.output_lin(x)
-        flag = torch.any(torch.isnan(x))
+        
         # bring back into euclidean space
         x = self.decoder(x)
-        flag = torch.any(torch.isnan(x))
+        
         return x
