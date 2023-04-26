@@ -84,15 +84,22 @@ class HGCNConv(MessagePassing):
         
         if self.local_agg:
             # use features projected into local tangent space of center node x_i
-            x_j = self.manifold.proj(self.manifold.logmap(x_j, x_i, c=self.c), c=self.c)
+            x_j_i = self.manifold.proj(self.manifold.logmap(x_j, x_i, c=self.c), c=self.c)
         if self.use_att:
             if self.local_agg:
                 x_i_o = self.manifold.logmap0(x_i, c=self.c)
                 x_j_o = self.manifold.logmap0(x_j, c=self.c)
                 alpha = F.softmax(self.attention_lin(torch.cat((x_i_o, x_j_o), dim=-1)).squeeze(), dim=0)
+                x_j_i = alpha.view(-1, 1) * x_j_i
             else:
                 alpha = F.softmax(self.attention_lin(torch.cat((x_i, x_j))))
-            x_j = alpha.view(-1, 1) * x_j
+                x_j = alpha.view(-1, 1) * x_j
+
+        if self.local_agg:
+            # if we use local aggregation, point x_j is in tangent space of x_j
+            x_j = x_j_i
+
+
         if self.normalize:
             # Normalize node features.
             norm.view(-1, 1) * x_j

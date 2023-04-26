@@ -27,7 +27,7 @@ class HGNN(nn.Module):
         self.act1 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[1], c_out=self.curvatures[2])
         self.dropout1 = nn.Dropout(p=dropout)
 
-        self.gnn2 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[2], dropout=dropout, *gcn_kwargs)
+        self.gnn2 = hypnn.HGCNConv(in_channels=hidden_dim, out_channels=hidden_dim, manifold=manifold, c=self.curvatures[2], dropout=dropout, **gcn_kwargs)
         self.act2 = hypnn.HypAct(act, manifold=manifold, c_in=self.curvatures[2], c_out=self.curvatures[3])
         self.dropout2 = nn.Dropout(p=dropout)
 
