@@ -7,12 +7,10 @@ import torch.nn.init as init
 from torch.nn.modules.module import Module
 import torch_hyperbolic.manifolds as manifolds
 class HypLinear(nn.Module):
-
-    """
-    Hyperbolic linear layer.
-    """
-
-    def __init__(self, in_channels, out_channels, c, dropout=0, manifold="PoincareBall", use_bias=True):
+    def __init__(self, in_channels, out_channels, c, dropout=0, manifold="PoincareBall", use_bias=True):  
+        """
+        Hyperbolic linear layer.
+        """
         super(HypLinear, self).__init__()
         self.manifold = getattr(manifolds, manifold)()
         self.in_channels = in_channels

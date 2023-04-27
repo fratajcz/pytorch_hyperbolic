@@ -33,13 +33,6 @@ from torch_geometric.utils.sparse import set_sparse_value
 from torch_geometric.nn.inits import glorot, zeros
 
 class HGATConv(MessagePassing):
-    """
-    Hyperbolic graph attention layer.
-
-    It assumes that the input is already on the manifold and outputs the feature matrix on the manifold.
-
-    """
-
     def __init__(self,
                  in_channels,
                  out_channels,
@@ -55,6 +48,12 @@ class HGATConv(MessagePassing):
                  negative_slope: float = 0.2,
                  fill_value: Union[float, Tensor, str] = 'mean',
                  **kwargs):
+        """
+        Hyperbolic graph attention layer.
+
+        It assumes that the input is already on the manifold and outputs the feature matrix on the manifold.
+
+        """
         super().__init__(aggr=aggr, node_dim=0, **kwargs)
         self.in_channels = in_channels
         self.out_channels = out_channels

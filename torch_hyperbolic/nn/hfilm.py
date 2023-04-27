@@ -25,12 +25,6 @@ from typing import Callable, Optional
 
 
 class HFiLMConv(MessagePassing):
-    """
-    Hyperbolic feature-wise linear modulation graph convolution layer.
-
-    It assumes that the input is already on the manifold and outputs the feature matrix on the manifold.
-
-    """
 
     def __init__(self, 
                  in_channels, 
@@ -46,6 +40,12 @@ class HFiLMConv(MessagePassing):
                  c_per_relation=False,
                  c_per_relation_init_value=1,
                  c_per_relation_trainable=True):
+        """
+        Hyperbolic feature-wise linear modulation graph convolution layer.
+
+        It assumes that the input is already on the manifold and outputs the feature matrix on the manifold.
+
+        """
         super().__init__(aggr=aggr)
         self.num_relations = num_relations
         self.act = HypAct(act=act, c_in=c, c_out=c)
