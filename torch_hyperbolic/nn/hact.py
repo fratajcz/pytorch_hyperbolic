@@ -6,6 +6,11 @@ from torch.nn.modules.module import Module
 class HypAct(Module):
     """
     Hyperbolic activation layer.
+
+    Assumes input features are on a manifold with curvature c_in, brings them into euclidean space, applies the activation,
+    and transforms the output into hyperbolic space with curvature c_out. 
+    
+    In case only translation between two curvatures is desired, torch.nn.Identity() can be passed as activation.
     """
 
     def __init__(self, act, c_in=None, c_out=None, manifold="PoincareBall"):

@@ -6,13 +6,16 @@ from torch_hyperbolic import manifolds
 
 class HyperbolicEncoder(Module):
     def __init__(self, manifold: str = "PoincareBall", curvature=None):
-        """ The encode() method of the HGCN and HNN from https://github.com/HazyResearch/hgcn/edit/master/models/encoders.py as an explicit class """
+        """ The encode() method of the HGCN and HNN from https://github.com/HazyResearch/hgcn/edit/master/models/encoders.py as an explicit class. 
+            This layer doe snot include any linear layers, it only translates the features from euclidean space onto the manifold with curvature c.
+           """
         super(HyperbolicEncoder, self).__init__()
         self.curvature = nn.Parameter(torch.Tensor([1.])) if curvature is None else curvature
         self.manifold = getattr(manifolds, manifold)()
 
     def forward(self, x):
-        """ Projects x into hyperbolic space """
+        """ Projects x into hyperbolic space.
+            In case the manifold is a hyperoloid (Lorentz model), the output will have n+1 dimensions"""
         if isinstance(self.manifold, manifolds.Hyperboloid):
             x = torch.cat((torch.zeros_like(x)[:, 0:1], x), dim=-1)
 

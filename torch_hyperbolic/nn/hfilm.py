@@ -26,12 +26,10 @@ from typing import Callable, Optional
 
 class HFiLMConv(MessagePassing):
     """
-    Hyperbolic graph convolution layer.
+    Hyperbolic feature-wise linear modulation graph convolution layer.
 
     It assumes that the input is already on the manifold and outputs the feature matrix on the manifold.
 
-    Implementation based on https://github.com/HazyResearch/hgcn/blob/master/layers/hyp_layers.py 
-    but implemented for the MessagePassing framework using the GCN template from https://pytorch-geometric.readthedocs.io/en/latest/tutorial/create_gnn.html#implementing-the-gcn-layer
     """
 
     def __init__(self, 
@@ -151,7 +149,7 @@ class HFiLMConv(MessagePassing):
                     
         # now bring everything back into hyperbolic space with curvature c
         out = self.manifold.proj(self.manifold.expmap0(self.manifold.proj_tan0(out, self.c), self.c), self.c)
-        
+
         return out
 
     def message(self, x_i, x_j, gamma_i, beta_i, edge_type, c):
