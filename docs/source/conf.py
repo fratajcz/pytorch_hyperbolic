@@ -46,6 +46,8 @@ intersphinx_mapping = {
 }
 intersphinx_disabled_domains = ['std']
 
+autoclass_content = "both"
+autodoc_inherit_docstrings = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
