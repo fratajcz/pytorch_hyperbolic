@@ -19,7 +19,6 @@ class HGCNConv(MessagePassing):
     """
 
     def __init__(self, in_channels, out_channels, c, manifold="PoincareBall", dropout=0, use_bias=True, aggr="add", normalize=False, use_att=False, local_agg=False):
-        super(HGCNConv, self).__init__()
         super().__init__(aggr=aggr)
         self.use_att = use_att
         self.c = c

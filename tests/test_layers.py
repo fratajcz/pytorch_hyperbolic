@@ -2,7 +2,7 @@
 import unittest
 import torch
 
-from torch_hyperbolic.nn import HypAct, HypLinear, HyperbolicEncoder, HyperbolicDecoder, HGATConv, HGCNConv, HFiLMConv
+from torch_hyperbolic.nn import HypAct, HypLinear, HyperbolicEncoder, HyperbolicDecoder, HGATConv, HGCNConv, HFiLMConv, HTAGConv
 from torch_hyperbolic import manifolds
 
 class HypLinearTest(unittest.TestCase):
@@ -134,6 +134,25 @@ class HGATConvTest(unittest.TestCase):
         x0 = hgcn0.forward(hgcn0.manifold.expmap0(x_input, hgcn0.c),  edges.T.long())
         xlocal = hgcnlocal.forward(hgcnlocal.manifold.expmap0(x_input, hgcnlocal.c),  edges.T.long())
         self.assertTrue(not torch.allclose(x0, xlocal))
+
+
+
+class HTAGConvTest(unittest.TestCase):
+
+    def test_init(self):
+        hgcn = HTAGConv(in_channels=10, out_channels=10, c=1.5)
+
+    def test_forward(self):
+        edges = torch.LongTensor([[0, 1], [0, 2], [2, 3], [2, 4]])
+        x_input = torch.rand((5, 10))
+
+        hgcn = HTAGConv(in_channels=10, out_channels=10, c=1.5)
+        x = hgcn.forward(hgcn.manifold.expmap0(x_input, hgcn.c), edges.T.long())
+        self.assertTrue(not torch.allclose(x, x_input))
+
+        # check if implicitely calling forward works too
+        x_direct = hgcn(hgcn.manifold.expmap0(x_input, hgcn.c), edges.T.long())
+        self.assertTrue(torch.allclose(x_direct, x))
 
 
 class HGCNConvTest(unittest.TestCase):
