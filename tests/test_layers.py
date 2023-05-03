@@ -165,11 +165,11 @@ class HGCNConvTest(unittest.TestCase):
         x_input = torch.rand((5, 10))
 
         hgcn = HGCNConv(in_channels=10, out_channels=10, c=1.5)
-        x = hgcn.forward(x_input, edges.T.long())
+        x = hgcn.forward(hgcn.manifold.expmap0(x_input, hgcn.c), edges.T.long())
         self.assertTrue(not torch.allclose(x, x_input))
 
          # check if implicitely calling forward works too
-        x_direct = hgcn(x_input, edges.T.long())
+        x_direct = hgcn(hgcn.manifold.expmap0(x_input, hgcn.c), edges.T.long())
         self.assertTrue(torch.allclose(x_direct, x))
 
     def test_local_agg_poincare(self):
