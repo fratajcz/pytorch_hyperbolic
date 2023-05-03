@@ -16,6 +16,7 @@ class HGCNConv(MessagePassing):
 
     Implementation based on https://github.com/HazyResearch/hgcn/blob/master/layers/hyp_layers.py 
     but implemented for the MessagePassing framework using the GCN template from https://pytorch-geometric.readthedocs.io/en/latest/tutorial/create_gnn.html#implementing-the-gcn-layer
+
     """
 
     def __init__(self, in_channels, out_channels, c, manifold="PoincareBall", dropout=0, use_bias=True, aggr="add", normalize=False, use_att=False, local_agg=False):
