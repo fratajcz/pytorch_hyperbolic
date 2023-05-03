@@ -19,11 +19,14 @@ class HyperbolicEncoder(Module):
         Projects x into hyperbolic space:
 
         .. math::
+        
             \mathbf{X}^{\prime} = \textrm{exp}_mathbf{o}^c \left( \mathbf{X} \right)
 
         where exp() :math:`\textrm{exp} \left( \right)` is given as
 
         .. math::
+
+            \textrm{exp}_mathbf{o}^c
         
         for PoincareBall Manifold and
 
