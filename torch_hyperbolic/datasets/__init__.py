@@ -1,0 +1,1 @@
+from .disease import *

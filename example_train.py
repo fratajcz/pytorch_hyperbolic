@@ -1,7 +1,9 @@
 from torch_hyperbolic.models import HGNN
+import torch_hyperbolic.datasets as th_datasets
 import torch_geometric.datasets as datasets
 import torch
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, roc_auc_score
+import time
 
 torch.set_default_dtype(torch.float64)
 
@@ -10,7 +12,7 @@ def get_accuracy(out, truth, mask):
 
 dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
 
-#dataset = datasets.Airports(root='/tmp/Airports', name='europe')
+#dataset = th_datasets.DiseaseDataset(use_feats=False)
 
 input_dim = dataset.num_node_features
 
@@ -25,6 +27,8 @@ y_onehot = torch.FloatTensor(dataset.y.shape[0], output_dim)
 y_onehot.zero_()
 y_onehot.scatter_(1, dataset.y.unsqueeze(-1), 1)
 
+best_accuracy = 0
+model_name = str(time.time()).split(".")[-1]
 epochs = 100
 print("Model curvatures before training: {}".format([round(x.detach().item(), 3) for x in model.curvatures]))
 for epoch in range(epochs):
@@ -44,11 +48,14 @@ for epoch in range(epochs):
             accuracy_val = get_accuracy(out, dataset.y, dataset.val_mask)
             val_loss = loss_function(out[dataset.val_mask].squeeze(), y_onehot[dataset.val_mask].squeeze()).squeeze().mean()
         print("Epoch: {}, Train Loss: {:.4f}, Val Loss: {:.4f}, Train Acc: {:.4f}, Val Acc: {:.4f}".format(epoch + 1, loss, val_loss, accuracy_train, accuracy_val))
-
-    
+        if accuracy_val > best_accuracy:
+            best_accuracy = accuracy_val
+            torch.save(model, "./models/" + model_name + ".pt")
 
 # test
 with torch.no_grad():
+    model = torch.load("./models/" + model_name + ".pt")
+    out = model(dataset.x, dataset.edge_index)
     test_loss = loss_function(out[dataset.test_mask].squeeze(), y_onehot[dataset.test_mask].squeeze()).squeeze().mean()
     accuracy_test = get_accuracy(out, dataset.y, dataset.test_mask)
     print("Test Loss: {:.4f}, Test Acc: {:.4f}".format(test_loss, accuracy_test))
