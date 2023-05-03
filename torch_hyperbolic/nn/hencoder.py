@@ -42,7 +42,6 @@ class HyperbolicEncoder(Module):
 
         Returns:
             torch.Tensor: The node features in hyperbolic space.
-
         """
 
         if isinstance(self.manifold, manifolds.Hyperboloid):
