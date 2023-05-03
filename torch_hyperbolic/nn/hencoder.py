@@ -13,24 +13,19 @@ class HyperbolicEncoder(Module):
         self.manifold = getattr(manifolds, manifold)()
 
     def forward(self, x):
-        """
-
-        Projects x into hyperbolic space:
+        r"""Projects x into hyperbolic space:
 
         .. math::
-
             \mathbf{X}^{\prime} = \textrm{exp}_\mathbf{o}^c \left( \mathbf{X} \right)
 
         where exp() :math:`\textrm{exp} \left( \right)` is given as
 
         .. math::
-
             \textrm{exp}_\mathbf{o}^c \left( \mathbf{v} \right) = \mathbf{0} \oplus_c \left( \textrm{tanh} \left( \sqrt{|c|} \frac{\lambda_\mathbf{o}^c || \mathbf{v} || _{2}}{2} \frac{\mathbf{v}}{\sqrt{|c| \mathbf{v} || _{2}}} \right) \right)
 
         for PoincareBall Manifold and
 
         .. math::
-
             \textrm{exp}_\mathbf{o}^c \left( \mathbf{v} \right) = \textrm{cosh} \left( \sqrt{|c|} || \mathbf{v} || _{\mathcal{L}} \right) \mathbf{0} + \mathbf{v} \frac{\textrm{sinh} \left( \sqrt{|c|} || \mathbf{v} || _{\mathcal{L}} \right) }{\sqrt{|c| || \mathbf{v} || _{\mathcal{L}}}}
 
         for Hyperboloid Manifold (Lorentz Model)
