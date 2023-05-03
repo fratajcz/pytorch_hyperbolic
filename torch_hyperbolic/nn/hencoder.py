@@ -13,7 +13,9 @@ class HyperbolicEncoder(Module):
         self.manifold = getattr(manifolds, manifold)()
 
     def forward(self, x):
-        """ Projects x into hyperbolic space:
+        """
+
+        Projects x into hyperbolic space:
 
         .. math::
 
@@ -24,7 +26,7 @@ class HyperbolicEncoder(Module):
         .. math::
 
             \textrm{exp}_\mathbf{o}^c \left( \mathbf{v} \right) = \mathbf{0} \oplus_c \left( \textrm{tanh} \left( \sqrt{|c|} \frac{\lambda_\mathbf{o}^c || \mathbf{v} || _{2}}{2} \frac{\mathbf{v}}{\sqrt{|c| \mathbf{v} || _{2}}} \right) \right)
-        
+
         for PoincareBall Manifold and
 
         .. math::
@@ -33,7 +35,15 @@ class HyperbolicEncoder(Module):
 
         for Hyperboloid Manifold (Lorentz Model)
 
-        In case the manifold is a hyperoloid (Lorentz model), the output will have n+1 dimensions"""
+        In case the manifold is a hyperoloid (Lorentz model), the output will have n+1 dimensions
+
+        Args:
+            x (torch.Tensor): The node features in euclidean space.
+
+        Returns:
+            torch.Tensor: The node features in hyperbolic space.
+
+        """
 
         if isinstance(self.manifold, manifolds.Hyperboloid):
             x = torch.cat((torch.zeros_like(x)[:, 0:1], x), dim=-1)
