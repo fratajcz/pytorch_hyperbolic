@@ -62,7 +62,7 @@ class HGATConv(MessagePassing):
         self.lin = HypLinear(in_channels, in_channels, c, dropout, manifold, use_bias)
         self.use_bias = use_bias
         self.bias = nn.Parameter(torch.Tensor(out_channels))
-        self.local_agg = True
+        self.local_agg = local_agg
         self.heads = heads
         self.concat = concat
         self.negative_slope = negative_slope
@@ -73,11 +73,11 @@ class HGATConv(MessagePassing):
         # In case we are operating in bipartite graphs, we apply separate
         # transformations 'lin_src' and 'lin_dst' to source and target nodes:
         if isinstance(in_channels, int):
-            self.lin_src = HypLinear(in_channels, heads * out_channels, use_bias=False, c=c)
+            self.lin_src = nn.Linear(in_channels, heads * out_channels, bias=False)
             self.lin_dst = self.lin_src
         else:
-            self.lin_src = HypLinear(in_channels[0], heads * out_channels, use_bias=False, c=c)
-            self.lin_dst = HypLinear(in_channels[1], heads * out_channels, use_bias=False, c=c)
+            self.lin_src = nn.Linear(in_channels[0], heads * out_channels, bias=False)
+            self.lin_dst = nn.Linear(in_channels[1], heads * out_channels, bias=False)
 
         # The learnable parameters to compute attention coefficients:
         self.att_src = Parameter(torch.Tensor(1, heads, out_channels))
@@ -165,10 +165,6 @@ class HGATConv(MessagePassing):
         # edge_updater_type: (alpha: OptPairTensor, edge_attr: OptTensor)
         alpha = self.edge_updater(edge_index, alpha=alpha, edge_attr=edge_attr)
 
-        # Step 3: Project Feature Matrix into Tangent Space.
-        if not self.local_agg:
-            x = self.manifold.logmap0(x, c=self.c)
-
         # Step 4: Start propagating messages.
         out = self.propagate(edge_index, x=x, alpha=alpha)
 
@@ -179,7 +175,7 @@ class HGATConv(MessagePassing):
 
         # Step 5: Project Feature Map back in Hyperbolic Space.
         if self.local_agg:
-            out = self.manifold.proj(self.manifold.expmap(out, x_dst, c=self.c), c=self.c)
+            out = self.manifold.proj(self.manifold.expmap(out, x_src.squeeze(), c=self.c), c=self.c)
         else:
             out = self.manifold.proj(self.manifold.expmap0(out, c=self.c), c=self.c)
 

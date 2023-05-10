@@ -60,11 +60,11 @@ class HGCNConv(MessagePassing):
             x: PairTensor = (x, x)
 
         # Step 4: Start propagating messages.
-        out = self.propagate(edge_index, x=x[0], x_j=x[1], norm=norm)
+        out = self.propagate(edge_index, x=x[0], norm=norm)
 
         # Step 5: Project Feature Map back in Hyperbolic Space.
         if self.local_agg:
-            out = self.manifold.proj(self.manifold.expmap(out, x[0], c=self.c), c=self.c)
+            out = self.manifold.proj(self.manifold.expmap(out, x[1], c=self.c), c=self.c)
         else:
             out = self.manifold.proj(self.manifold.expmap0(out, c=self.c), c=self.c)
 
@@ -84,7 +84,7 @@ class HGCNConv(MessagePassing):
         
         if self.local_agg:
             # use features projected into local tangent space of center node x_i
-            x_j_i = self.manifold.proj(self.manifold.logmap(x_j, x_i, c=self.c), c=self.c)
+            x_j_i = self.manifold.logmap(x_j, x_i, c=self.c)
         if self.use_att:
             if self.local_agg:
                 x_i_o = self.manifold.logmap0(x_i, c=self.c)
@@ -92,17 +92,17 @@ class HGCNConv(MessagePassing):
                 alpha = F.softmax(self.attention_lin(torch.cat((x_i_o, x_j_o), dim=-1)).squeeze(), dim=0)
                 x_j_i = alpha.view(-1, 1) * x_j_i
             else:
-                alpha = F.softmax(self.attention_lin(torch.cat((x_i, x_j))))
+                alpha = F.softmax(self.attention_lin(torch.cat((x_i, x_j), dim=-1)), dim=-1)
                 x_j = alpha.view(-1, 1) * x_j
 
         if self.local_agg:
             # if we use local aggregation, point x_j is in tangent space of x_j
             x_j = x_j_i
 
-
         if self.normalize:
             # Normalize node features.
             norm.view(-1, 1) * x_j
+
         return x_j
 
     def __repr__(self) -> str:

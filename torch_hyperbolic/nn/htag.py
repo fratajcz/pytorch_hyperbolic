@@ -61,15 +61,15 @@ class HTAGConv(MessagePassing):
 
             # Step 4: Start propagating messages.
             
-                x = self.propagate(edge_index, x=x[0], x_j=x[1], norm=norm)
+            new_x = self.propagate(edge_index, x=lin(x[0]), norm=norm)
 
             # Step 5: Project Feature Map back in Hyperbolic Space.
             if self.local_agg:
-                x = self.manifold.proj(self.manifold.expmap(x, x[0], c=self.c), c=self.c)
+                new_x = self.manifold.proj(self.manifold.expmap(new_x, x[1], c=self.c), c=self.c)
             else:
-                x = self.manifold.proj(self.manifold.expmap0(x, c=self.c), c=self.c)
+                new_x = self.manifold.proj(self.manifold.expmap0(new_x, c=self.c), c=self.c)
 
-                out = self.manifold.mobius_add(x, out, c=self.c)
+            out = self.manifold.proj(self.manifold.mobius_add(new_x, out, c=self.c), c=self.c)
 
 
         # Step 6: Apply a final bias vector.
@@ -88,7 +88,7 @@ class HTAGConv(MessagePassing):
         
         if self.local_agg:
             # use features projected into local tangent space of center node x_i
-            x_j = self.manifold.proj(self.manifold.logmap(x_j, x_i, c=self.c), c=self.c)
+            x_j = self.manifold.logmap(x_j, x_i, c=self.c)
 
         if self.normalize:
             # Normalize node features.

@@ -176,6 +176,13 @@ class PoincareBall(Manifold):
         num = (1 + 2 * c * xy + c * y2) * x + (1 - c * x2) * y
         denom = 1 + 2 * c * xy + c ** 2 * x2 * y2
         return num / denom.clamp_min(self.min_norm)
+    
+    def mobius_scalarmult(self, r, x, c):
+        radius = 1 / torch.sqrt(c)
+        x_norm = x.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
+        inner = torch.arctanh(torch.sqrt(c) * x_norm)
+        outer = torch.tanh(r * inner)
+        return radius * outer * (x / x_norm)
 
     def mobius_matvec(self, m, x, c):
         sqrt_c = c ** 0.5
