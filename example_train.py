@@ -20,7 +20,7 @@ output_dim = dataset.num_classes
 hidden_dim = 12
 loss_function = torch.nn.BCEWithLogitsLoss(reduction="none")
 gcn_kwargs = {"local_agg": False}
-model = HGNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim, manifold="PoincareBall", gcn_kwargs=gcn_kwargs)
+model = HGNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim, manifold="Hyperboloid", gcn_kwargs=gcn_kwargs)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 y_onehot = torch.FloatTensor(dataset.y.shape[0], output_dim)

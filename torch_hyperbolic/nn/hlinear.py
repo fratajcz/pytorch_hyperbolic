@@ -24,15 +24,15 @@ class HypLinear(nn.Module):
 
     def reset_parameters(self):
         init.xavier_uniform_(self.weight, gain=math.sqrt(2))
-        init.constant_(self.bias, 0)
+        init.xavier_uniform_(self.bias.unsqueeze(-1), gain=math.sqrt(2))
 
     def forward(self, x):
         drop_weight = F.dropout(self.weight, self.dropout, training=self.training)
-        mv = self.manifold.mobius_matvec(drop_weight, x, self.c)
+        mv = self.manifold.mobius_matvec(self.manifold.expmap0(drop_weight, self.c), x, self.c)
         #mv = self.manifold.expmap0(torch.mm(self.manifold.logmap0(x, self.c), drop_weight.T), self.c)
         res = self.manifold.proj(mv, self.c)
         if self.use_bias:
-            bias = self.manifold.proj_tan0(self.bias.view(1, -1), self.c)
+            bias = self.manifold.proj_tan0(self.bias.squeeze().view(1, -1), self.c)
             hyp_bias = self.manifold.expmap0(bias, self.c)
             hyp_bias = self.manifold.proj(hyp_bias, self.c)
             res = self.manifold.mobius_add(res, hyp_bias, c=self.c)
