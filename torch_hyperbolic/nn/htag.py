@@ -76,7 +76,7 @@ class HTAGConv(MessagePassing):
     def message(self, x_i, x_j):
         """ If we use local aggregation, x_i and x_j are still on the manifold, else they are in tangent space of origin """
         # x_j has shape [E, out_channels]
-        
+
         if self.local_agg:
             # use features projected into local tangent space of center node x_i
             x_j = self.manifold.logmap(x_j, x_i, c=self.c)

@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Speos'
+project = 'PyTorch Hyperbolic'
 copyright = '2023, Florin Ratajczak'
 author = 'Florin Ratajczak'
 

@@ -9,14 +9,14 @@ torch.set_default_dtype(torch.float64)
 def get_accuracy(out, truth, mask):
     return balanced_accuracy_score(truth[mask], out.argmax(dim=1)[mask])
 
-#dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
+dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
 
-dataset = th_datasets.DiseaseDataset()
+#dataset = th_datasets.DiseaseDataset()
 
 input_dim = dataset.num_node_features
 
 output_dim = dataset.num_classes
-hidden_dim = 3
+hidden_dim = 12
 loss_function = torch.nn.BCEWithLogitsLoss(reduction="none")
 
 model = GNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim,  gcn_kwargs={})

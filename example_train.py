@@ -29,7 +29,7 @@ y_onehot.scatter_(1, dataset.y.unsqueeze(-1), 1)
 
 best_accuracy = 0
 model_name = str(time.time()).split(".")[-1]
-epochs = 100
+epochs = 200
 print("Model curvatures before training: {}".format([round(x.detach().item(), 3) for x in model.curvatures]))
 for epoch in range(epochs):
     # train
