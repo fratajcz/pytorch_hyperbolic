@@ -9,9 +9,9 @@ torch.set_default_dtype(torch.float64)
 def get_accuracy(out, truth, mask):
     return balanced_accuracy_score(truth[mask], out.argmax(dim=1)[mask])
 
-dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
+#dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
 
-#dataset = th_datasets.DiseaseDataset()
+dataset = th_datasets.DiseaseDataset()
 
 input_dim = dataset.num_node_features
 

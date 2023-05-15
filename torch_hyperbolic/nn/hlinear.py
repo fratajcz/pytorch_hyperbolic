@@ -19,7 +19,7 @@ class HypLinear(nn.Module):
         self.dropout = dropout
         self.use_bias = use_bias
         self.bias = nn.Parameter(torch.Tensor(self.out_channels))
-        self.weight = nn.Parameter(torch.Tensor(self.out_channels, in_channels))
+        self.weight = nn.Parameter(torch.Tensor(in_channels, self.out_channels))
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -28,7 +28,7 @@ class HypLinear(nn.Module):
 
     def forward(self, x):
         drop_weight = F.dropout(self.weight, self.dropout, training=self.training)
-        mv = self.manifold.mobius_matvec(self.manifold.expmap0(drop_weight, self.c), x, self.c)
+        mv = self.manifold.mobius_matvec(drop_weight, x, self.c)
         #mv = self.manifold.expmap0(torch.mm(self.manifold.logmap0(x, self.c), drop_weight.T), self.c)
         res = self.manifold.proj(mv, self.c)
         if self.use_bias:

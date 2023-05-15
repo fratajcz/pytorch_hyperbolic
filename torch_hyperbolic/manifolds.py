@@ -187,7 +187,7 @@ class PoincareBall(Manifold):
     def mobius_matvec(self, m, x, c):
         sqrt_c = c ** 0.5
         x_norm = x.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
-        mx = x @ m.transpose(-1, -2)
+        mx = x @ m
         mx_norm = mx.norm(dim=-1, keepdim=True, p=2).clamp_min(self.min_norm)
         res_c = tanh(mx_norm / x_norm * artanh(sqrt_c * x_norm)) * mx / (mx_norm * sqrt_c)
         cond = (mx == 0).prod(-1, keepdim=True, dtype=torch.bool)
@@ -412,7 +412,10 @@ class Hyperboloid(Manifold):
 
     def mobius_matvec(self, m, x, c):
         u = self.logmap0(x, c)
-        mu = u @ m.transpose(-1, -2)
+        mu = u @ m
+
+        mu[:, 0] = 0
+
         return self.expmap0(mu, c)
 
     def ptransp(self, x, y, u, c):

@@ -10,17 +10,17 @@ torch.set_default_dtype(torch.float64)
 def get_accuracy(out, truth, mask):
     return balanced_accuracy_score(truth[mask], out.argmax(dim=1)[mask])
 
-dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
+#dataset = datasets.Planetoid(root='/tmp/Cora', name='Cora')
 
-#dataset = th_datasets.DiseaseDataset()
+dataset = th_datasets.DiseaseDataset()
 
 input_dim = dataset.num_node_features
 
 output_dim = dataset.num_classes
 hidden_dim = 12
 loss_function = torch.nn.BCEWithLogitsLoss(reduction="none")
-gcn_kwargs = {"local_agg": False}
-model = HGNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim, manifold="Hyperboloid", gcn_kwargs=gcn_kwargs)
+gcn_kwargs = {"use_att": False}
+model = HGNN(in_channels=input_dim, out_channels=output_dim, hidden_dim=hidden_dim, manifold="PoincareBall", gcn_kwargs=gcn_kwargs)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
 
 y_onehot = torch.FloatTensor(dataset.y.shape[0], output_dim)
