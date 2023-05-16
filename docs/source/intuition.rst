@@ -11,17 +11,33 @@ First, lets initialize an array of random 2-dimensional values:
 
     import torch
     import matplotlib.pyplot as plt
+    
+    def map_colors(values):
+        import matplotlib as mpl
+    
+        cmap = mpl.colormaps["viridis"]
+    
+        values = values.pow(2).sum(dim=1).sqrt()
+    
+        values = values - values.min()
+    
+        values = values / values.max()
+    
+        return cmap(values)
+    
     fig, ax = plt.subplots(figsize=(5,5))
     x = torch.rand(100,2) * 10
     x = x - x.mean()
-    ax.scatter(x[:, 0], x[:, 1], s=1)
+    
+    colors = map_colors(x)
+    ax.scatter(x[:, 0], x[:, 1], s=1, c=colors)
 
 
 
 
 .. parsed-literal::
 
-    <matplotlib.collections.PathCollection at 0x7fbaeb060790>
+    <matplotlib.collections.PathCollection at 0x7ff431240fa0>
 
 
 
@@ -44,12 +60,12 @@ of the Poincaré Disk.
     point_indices = [1, 14]
     
     ball = PoincareBall()
-    x_balled = ball.proj(ball.expmap0(x, c=curvature), c=curvature)
+    x_balled = ball.expmap0(x, c=curvature)
     x_back_euclidean = ball.logmap0(x_balled, c=curvature)
     fig, axes = plt.subplots(ncols=3, nrows=1, figsize=(15,5))
     
     for ax, values, title in zip(axes, [x, x_balled, x_back_euclidean], ["Euclidean", "Hyperbolic", "Back to Euclidean"]):
-        ax.scatter(values[:, 0], values[:, 1], s=1)
+        ax.scatter(values[:, 0], values[:, 1], s=1, c=colors)
         ax.scatter(values[point_indices, 0], values[point_indices, 1], s=3, c="r")
         radius = 1/math.sqrt(curvature)
         circle2 = plt.Circle((0, 0), radius, color='lightgray', fill=False)
@@ -76,7 +92,7 @@ different results:
     
     for ax, curvature in zip(axes, curvatures):    
         x_balled = ball.proj(ball.expmap0(x, c=curvature), c=curvature)
-        ax.scatter(x_balled[:, 0], x_balled[:, 1], s=1)
+        ax.scatter(x_balled[:, 0], x_balled[:, 1], s=1,c=colors)
     
         radius = 1/math.sqrt(curvature)
         circle2 = plt.Circle((0, 0), radius, color='lightgray', fill=False)
@@ -108,16 +124,16 @@ input space and in the three hyperbolic spaces:
     
     for ax, curvature in zip(axes, curvatures):    
         if curvature is None:
-            ax.scatter(x[:, 0], x[:, 1], s=1)
-            ax.scatter(x[point_indices, 0], x[point_indices, 1], s=3, c="r")
+            ax.scatter(x[:, 0], x[:, 1], s=1, c=colors)
+            ax.scatter(x[point_indices, 0], x[point_indices, 1], s=5, c="r")
             distance_x = x[point_indices[0], 0] - x[point_indices[1], 0]
             distance_y = x[point_indices[0], 1] - x[point_indices[1], 1]
             distance = math.sqrt((distance_x ** 2) + (distance_y ** 2))
             ax.set_title("Input Space\nd={:.2}".format(distance))
         else:
             x_balled = ball.proj(ball.expmap0(x, c=curvature), c=curvature)
-            ax.scatter(x_balled[:, 0], x_balled[:, 1], s=1)
-            ax.scatter(x_balled[point_indices, 0], x_balled[point_indices, 1], s=3, c="r")
+            ax.scatter(x_balled[:, 0], x_balled[:, 1], s=1, c=colors)
+            ax.scatter(x_balled[point_indices, 0], x_balled[point_indices, 1], s=5, c="r")
             distance = math.sqrt(ball.sqdist(x_balled[point_indices[0],:], x_balled[point_indices[1], :], c=curvature))
             radius = 1/math.sqrt(curvature)
             circle2 = plt.Circle((0, 0), radius, color='lightgray', fill=False)
@@ -145,16 +161,16 @@ origin:
     
     for ax, curvature in zip(axes, curvatures):    
         if curvature is None:
-            ax.scatter(x[:, 0], x[:, 1], s=1)
-            ax.scatter(x[point_indices, 0], x[point_indices, 1], s=3, c="r")
+            ax.scatter(x[:, 0], x[:, 1], s=1, c=colors)
+            ax.scatter(x[point_indices, 0], x[point_indices, 1], s=5, c="r")
             distance_x = x[point_indices[0], 0] - x[point_indices[1], 0]
             distance_y = x[point_indices[0], 1] - x[point_indices[1], 1]
             distance = math.sqrt((distance_x ** 2) + (distance_y ** 2))
             ax.set_title("Input Space\nd={:.2}".format(distance))
         else:
             x_balled = ball.proj(ball.expmap0(x, c=curvature), c=curvature)
-            ax.scatter(x_balled[:, 0], x_balled[:, 1], s=1)
-            ax.scatter(x_balled[point_indices, 0], x_balled[point_indices, 1], s=3, c="r")
+            ax.scatter(x_balled[:, 0], x_balled[:, 1], c=colors, s=1)
+            ax.scatter(x_balled[point_indices, 0], x_balled[point_indices, 1], s=5, c="r")
             distance = math.sqrt(ball.sqdist(x_balled[point_indices[0],:], x_balled[point_indices[1], :], c=curvature))
             radius = 1/math.sqrt(curvature)
             circle2 = plt.Circle((0, 0), radius, color='lightgray', fill=False)
@@ -190,7 +206,7 @@ matrix multiplication:
     
             a = x.double()
     
-            b = torch.mm(x, parameters)
+            b = torch.mm(a, parameters)
     
             curvature = 1
     
@@ -213,8 +229,8 @@ matrix multiplication:
     
     
             for i, (ax, values) in enumerate(zip(axes.flatten(), [a, b, c, d, e, f])):
-                    ax.scatter(values[:, 0], values[:, 1], s=1)
-                    ax.scatter(values[point_indices, 0], values[point_indices, 1], s=3, c="r")
+                    ax.scatter(values[:, 0], values[:, 1], s=1, c=colors)
+                    ax.scatter(values[point_indices, 0], values[point_indices, 1], s=5, c="r")
                     if i < 2 or i == 5:
                             distance_x = values[point_indices[0], 0] - values[point_indices[1], 0]
                             distance_y = values[point_indices[0], 1] - values[point_indices[1], 1]
@@ -243,45 +259,30 @@ matrix-vector multiplication. Then finally, in c, you see the projection
 of the euclidean transformed features from b into the hyperbolic space,
 which should resemble d, and the projection of the hyperbolic
 transformed features from e into the euclidean space, which should
-resemble b. However, we note that, while the shapes in b and f, or in c
-and e, look similar, the distances between our two selected points are
-not equal. In some cases, they can be very close, in others, they are
-far apart, depending on the random initialization of the parameters:
+resemble b. In fact, we note that the shapes in b and f or c and e look
+similar and the distances are similar as well, so these operations are
+in fact exchangable. However, at extreme points of the manifold which
+are reserved for very large values, points can get pushed together,
+which then impacts their values when they are mapped back to the
+euclidean space, as in frame e:
 
 .. code:: ipython3
 
-    generator = torch.manual_seed(1)
-    parameters = torch.rand((2,2), generator=generator).double()
-    point_indices = [1, 14]
-    
-    plot_transformations(x, parameters, point_indices)
+    plot_transformations(x, parameters*5, point_indices)
 
 
 
 .. image:: intuition_files/intuition_14_0.png
 
 
-.. code:: ipython3
-
-    generator = torch.manual_seed(3)
-    parameters = torch.rand((2,2), generator=generator).double()
-    point_indices = [1, 14]
-    
-    plot_transformations(x, parameters, point_indices)
-
-
-
-.. image:: intuition_files/intuition_15_0.png
-
-
-Since the two procedures are introduced as equivalent in the literature
-(i.e. going from a to b to c and going from a to d to e), it is to be
-assumed that the difference between the two is due to rounding errors,
-something the hyperbolic transformations are pretty sensitive for. Note,
-however, that we already work in double precision. The implementation
-from Chami et al. uses the latter approach, going from a to d to e for
-its matrix multiplication, which is also how it is computed in
-pytorch_hyperbolic.
+This is due to the fact that the distance between points very close to
+the border are infinite, while points outside of the border are
+undefined. As we want to make sure that infinite and undefined values do
+not occur in a machine learning pipeline, all points very close or
+across the border of the manifold are re-set onto the manifold with a
+fixed distance to its border (by the ``proj()`` method of the manifold).
+This can destroy the initial information of points, but it only is a
+problem for very large values.
 
 Bias Addition
 -------------
@@ -323,8 +324,8 @@ Bias Addition
     
     
             for i, (ax, values) in enumerate(zip(axes.flatten(), [a, b, c, d, e, f])):
-                    ax.scatter(values[:, 0], values[:, 1], s=1)
-                    ax.scatter(values[point_indices, 0], values[point_indices, 1], s=3, c="r")
+                    ax.scatter(values[:, 0], values[:, 1], s=1, c=colors)
+                    ax.scatter(values[point_indices, 0], values[point_indices, 1], s=5, c="r")
                     if i < 2 or i == 5:
                             distance_x = values[point_indices[0], 0] - values[point_indices[1], 0]
                             distance_y = values[point_indices[0], 1] - values[point_indices[1], 1]
@@ -342,7 +343,7 @@ Bias Addition
 
 
 
-.. image:: intuition_files/intuition_18_0.png
+.. image:: intuition_files/intuition_17_0.png
 
 
 Here, we see the euclidean input again (a), which then gets a bias
@@ -361,21 +362,14 @@ magnitude of the parameters, as in the next image, this begins to fail:
 
 
 
-.. image:: intuition_files/intuition_20_0.png
+.. image:: intuition_files/intuition_19_0.png
 
 
-.. code:: ipython3
-
-    plot_addition(x, parameters * 100, point_indices)
-
-
-
-.. image:: intuition_files/intuition_21_0.png
-
-
-It is possible that the Möbius addition fails with larger biases due to
-floating point inaccuracies. In either case, we should make sure that
-the biases that we add stay fairly small.
-
+Just as with the linear transformations, the high values push the points
+off the manifold, after which they are re-set onto the manifold in a
+fixed distance to the border to prevent infinite or undefined values.
+This can destroy the information content of a point, but will only occur
+for large parameters. If this acts as a kind of inherent regularization
+remains to be investigated.
 
 

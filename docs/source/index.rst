@@ -8,6 +8,7 @@ This package is designed to make the implementation of hyperbolic neural network
    :caption: Tutorials
 
    intuition
+   intuition_lorentz
 
 .. toctree::
    :maxdepth: 2
