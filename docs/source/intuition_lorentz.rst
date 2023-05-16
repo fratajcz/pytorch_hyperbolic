@@ -241,8 +241,8 @@ to prevent the occurence of infinite or undefined values:
 .. image:: intuition_lorentz_files/intuition_lorentz_12_0.png
 
 
-Bias Addition
--------------
+Bias Addition II
+----------------
 
 Another normal building block of neural networks are bias additions. We
 can to the bias addition in the euclidean space and then project the
