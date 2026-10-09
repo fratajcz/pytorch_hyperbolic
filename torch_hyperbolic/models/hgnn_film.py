@@ -11,7 +11,7 @@ class HFiLM(nn.Module):
 
         requires_grad = trainable_curvature
         init_val = float(init_curvature) if init_curvature is not None else 1
-        self.curvatures = [nn.Parameter(torch.Tensor([init_val]), requires_grad=requires_grad) for _ in range(n_layers)]
+        self.curvatures = nn.ParameterList([nn.Parameter(torch.Tensor([init_val]), requires_grad=requires_grad) for _ in range(n_layers)])
 
         if manifold == "Hyperboloid":
             in_channels += 1

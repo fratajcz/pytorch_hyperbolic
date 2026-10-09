@@ -101,7 +101,7 @@ class HGCNConv(MessagePassing):
 
         if self.normalize:
             # Normalize node features.
-            norm.view(-1, 1) * x_j
+            x_j = norm.view(-1, 1) * x_j
 
         return x_j
 

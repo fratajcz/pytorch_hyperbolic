@@ -47,6 +47,7 @@ class HGATConv(MessagePassing):
                  concat: bool = True,
                  negative_slope: float = 0.2,
                  fill_value: Union[float, Tensor, str] = 'mean',
+                 add_self_loops: bool = True,
                  **kwargs):
         """
         Hyperbolic graph attention layer.
@@ -128,9 +129,9 @@ class HGATConv(MessagePassing):
         else:  # Tuple of source and target node features:
             x_src, x_dst = x
             assert x_src.dim() == 2, "Static graphs not supported in 'GATConv'"
-            x_src = self.lin_src(self.manifold.logmap0(x_src), self.c).view(-1, H, C)
+            x_src = self.lin_src(self.manifold.logmap0(x_src, self.c)).view(-1, H, C)
             if x_dst is not None:
-                x_dst = self.lin_dst(self.manifold.logmap0(x_dst), self.c).view(-1, H, C)
+                x_dst = self.lin_dst(self.manifold.logmap0(x_dst, self.c)).view(-1, H, C)
 
         x = (x_src, x_dst)
 

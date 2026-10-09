@@ -26,16 +26,16 @@ from typing import Callable, Optional
 
 class HFiLMConv(MessagePassing):
 
-    def __init__(self, 
-                 in_channels, 
-                 out_channels, 
-                 c, 
-                 num_relations: int = 1, 
-                 nn: Optional[Callable] = None, 
-                 act: Optional[Callable] = nn.ReLU(), 
-                 manifold="PoincareBall", 
-                 dropout=0, 
-                 aggr="mean", 
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 c,
+                 num_relations: int = 1,
+                 film_nn: Optional[Callable] = None,
+                 act: Optional[Callable] = nn.ReLU(),
+                 manifold="PoincareBall",
+                 dropout=0,
+                 aggr="mean",
                  local_agg=False,
                  c_per_relation=False,
                  c_per_relation_init_value=1,
@@ -52,8 +52,8 @@ class HFiLMConv(MessagePassing):
         self.c = c
 
         if c_per_relation:
-            self.curvatures = [torch.nn.Parameter(torch.Tensor([c_per_relation_init_value]), requires_grad=c_per_relation_trainable) for _ in range(num_relations)]
-            self.translation_acts = [HypAct(act=torch.nn.Identity(), c_in=c, c_out=c_out) for c_out in self.curvatures]
+            self.curvatures = nn.ParameterList([torch.nn.Parameter(torch.Tensor([c_per_relation_init_value]), requires_grad=c_per_relation_trainable) for _ in range(num_relations)])
+            self.translation_acts = nn.ModuleList([HypAct(act=torch.nn.Identity(), c_in=c, c_out=c_out) for c_out in self.curvatures])
         else:
             self.curvatures = None
             self.translation_acts = None
@@ -70,10 +70,10 @@ class HFiLMConv(MessagePassing):
 
         for i in range(num_relations):
             self.lins.append(HypLinear(in_channels[0], out_channels, c=self.curvatures[i] if c_per_relation else c, use_bias=False))
-            if nn is None:
+            if film_nn is None:
                 film = Linear(in_channels[1], 2 * out_channels)
             else:
-                film = copy.deepcopy(nn)
+                film = copy.deepcopy(film_nn)
             self.films.append(film)
 
         self.lin_skip = HypLinear(in_channels[1], self.out_channels, c=c, use_bias=False)
@@ -81,7 +81,7 @@ class HFiLMConv(MessagePassing):
         if nn is None:
             self.film_skip = Linear(in_channels[1], 2 * self.out_channels, bias=False)
         else:
-            self.film_skip = nn.copy.deepcopy(nn)
+            self.film_skip = copy.deepcopy(film_nn)
 
         self.reset_parameters()
         self.local_agg = local_agg
@@ -96,7 +96,7 @@ class HFiLMConv(MessagePassing):
         if isinstance(x, Tensor):
             x: PairTensor = (x, x)
 
-        x_tangent = self.manifold.proj(self.manifold.expmap0(x[1], c=self.c), c=self.c)
+        x_tangent = self.manifold.logmap0(x[1], c=self.c)
 
         beta, gamma = self.film_skip(x_tangent).split(self.out_channels, dim=-1)
 
@@ -174,7 +174,7 @@ class HFiLMConv(MessagePassing):
 
         #now we have to bring features into tangent at origin for aggregation:
         if not self.local_agg:
-            out = self.manifold.logmap0(x_j, c=c)
+            out = self.manifold.logmap0(out, c=c)
 
         return out
 

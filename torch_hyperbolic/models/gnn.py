@@ -11,7 +11,7 @@ class GNN(nn.Module):
 
         requires_grad = trainable_curvature
         init_val = float(init_curvature) if init_curvature is not None else 1
-        self.curvatures = [nn.Parameter(torch.Tensor([init_val]), requires_grad=requires_grad) for _ in range(n_layers)]
+        self.curvatures = nn.ParameterList([nn.Parameter(torch.Tensor([init_val]), requires_grad=requires_grad) for _ in range(n_layers)])
 
         self.input_lin = pyg.nn.Linear(in_channels=in_channels, out_channels=hidden_dim)
         self.act0 = getattr(torch.nn, act)()
